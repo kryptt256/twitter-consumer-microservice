@@ -1,4 +1,4 @@
-package com.challenge.twitterconsumer.repository;
+package com.challenge.twitterconsumer.repository.tests;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.annotation.Order;
 
 import com.challenge.twitterconsumer.domain.TweetData;
+import com.challenge.twitterconsumer.repository.TweetRepository;
 
 @SpringBootTest
 class TweetRepositoryTests {

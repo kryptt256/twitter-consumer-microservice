@@ -20,6 +20,15 @@ public class TweetData {
 	public TweetData() {
 	}
 	
+	public TweetData(long id, long userId, String text, boolean valid, String location) {
+		super();
+		this.id = id;
+		this.userId = userId;
+		this.text = text;
+		this.valid = valid;
+		this.location = location;
+	}
+
 	public static TweetData mapFromStatus(Status status) {
 		TweetData tweet = new TweetData();
 		tweet.setId(status.getId());
