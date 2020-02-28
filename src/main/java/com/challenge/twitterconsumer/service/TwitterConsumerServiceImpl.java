@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import com.challenge.twitterconsumer.repository.TweetRepository;
 
 import twitter4j.HashtagEntity;
 import twitter4j.Status;
+import twitter4j.TwitterException;
+import twitter4j.TwitterObjectFactory;
 
 /**
  * @author vvmaster
@@ -100,6 +103,26 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService{
 	@Override
 	public Iterable<TweetData> getValidatedTweetsByUserId(long userId) {
 		return repository.findAllValidated(userId);
+	}
+
+	@Override
+	public TweetData getTweetFromRequest(String statusRequest) {
+		Status status = this.getStatusFromRequest(statusRequest)
+				.orElseThrow(() -> new IllegalArgumentException("Tweet invalido"));
+		
+		return this.processTweet(status);
+	}
+	
+	private Optional<Status> getStatusFromRequest(String request) {
+		Status result = null;
+		
+		try {
+			result = TwitterObjectFactory.createStatus(request);
+		} catch (TwitterException e) {
+			e.printStackTrace();
+		}
+		
+		return Optional.ofNullable(result);
 	}
 
 }

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,6 +31,8 @@ class TwitterConsumerControllerTests {
 	@MockBean
 	TwitterConsumerService service;
 	
+	private static final String urlPath = "/twitterconsumer/tweet";
+	
 	@Test
 	void whenPostTweetThenCreateTweet() throws Exception {
 		TweetData tweet = new TweetData(10L, 100L, "prueba", false, "Spain");
@@ -40,14 +41,14 @@ class TwitterConsumerControllerTests {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonStr = mapper.writeValueAsString(tweet);
 		
-		mvc.perform( post("/twitterconsumer/tweet").contentType(MediaType.APPLICATION_JSON)
+		mvc.perform( post(urlPath).contentType(MediaType.APPLICATION_JSON)
 				.content(jsonStr)).andExpect( status().isCreated());
 
 	}
 	
 	@Test
 	void retrieveTweetsTest( ) throws Exception {
-		this.mvc.perform( get("/twitterconsumer/tweet"))
+		this.mvc.perform( get(urlPath))
 		.andExpect(status().isOk())
 		.andExpect( content().contentType(MediaType.APPLICATION_JSON));
 	}
@@ -67,7 +68,7 @@ class TwitterConsumerControllerTests {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonStr = mapper.writeValueAsString(tweet);
 		
-		mvc.perform( post("/twitterconsumer/tweet").pathInfo("/123")
+		mvc.perform( post(urlPath).pathInfo("/123")
 				.content(jsonStr))
 		.andExpect( status().isCreated());
 		

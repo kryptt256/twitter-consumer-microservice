@@ -3,14 +3,23 @@
  */
 package com.challenge.twitterconsumer.domain;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import twitter4j.Status;
 
 /**
  * @author vvmaster
  *
  */
-public class TweetData {
+@JsonIgnoreProperties
+public class TweetData implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private long id;
 	private long userId;
 	private String text;

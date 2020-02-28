@@ -14,4 +14,5 @@ public interface TwitterConsumerService {
 	TweetData getTweetById(long id);
 	TweetData markTweetAsValid(long id);
 	Iterable<TweetData> getValidatedTweetsByUserId(long userId);
+	TweetData getTweetFromRequest(String statusRequest);
 }

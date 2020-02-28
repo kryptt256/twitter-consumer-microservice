@@ -4,7 +4,6 @@
 package com.challenge.twitterconsumer.controller;
 
 import java.net.URI;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,17 +20,13 @@ import com.challenge.twitterconsumer.domain.TweetData;
 import com.challenge.twitterconsumer.repository.TweetRepository;
 import com.challenge.twitterconsumer.service.TwitterConsumerService;
 
-import twitter4j.Status;
-import twitter4j.TwitterException;
-import twitter4j.TwitterObjectFactory;
-
 /**
  * @author vvmaster
  *
  */
 @RestController
 @RequestMapping("/twitterconsumer")
-public class TweetConsumerController {
+public class TweetConsumerController implements TweetConsumer {
 
 	@Autowired
 	private TweetRepository<TweetData> repository;
@@ -42,13 +37,11 @@ public class TweetConsumerController {
 	public TweetConsumerController() {
 	}
 	
+	@Override
 	@RequestMapping(value="/tweet", method = {RequestMethod.POST, RequestMethod.PUT})
-	public ResponseEntity<?> consumeTweet(@RequestBody String StatusRequest) {
-		Status status = this.getStatusFromRequest(StatusRequest)
-				.orElseThrow(() -> new IllegalArgumentException("Tweet invalido"));
+	public ResponseEntity<?> consumeTweet(@RequestBody String statusRequest) {
 		
-		TweetData tweet = twitterService.processTweet(status);
-		
+		TweetData tweet = twitterService.getTweetFromRequest(statusRequest);
 		if (tweet == null) {
 			return ResponseEntity.noContent().build();
 		}
@@ -58,42 +51,35 @@ public class TweetConsumerController {
 		return ResponseEntity.created(location).build();
 	}
 	
-	private Optional<Status> getStatusFromRequest(String request) {
-		Status result = null;
-		
-		try {
-			result = TwitterObjectFactory.createStatus(request);
-		} catch (TwitterException e) {
-			e.printStackTrace();
-		}
-		
-		return Optional.ofNullable(result);
-	}
-	
+	@Override
 	@GetMapping("/tweet")
 	public ResponseEntity<Iterable<TweetData>> getTweets() {
 		return ResponseEntity.ok(repository.findAll());
 	}
 	
-	@GetMapping("/tweet/{id}")
-	public ResponseEntity<TweetData> getTweetById(@PathVariable long id) {
-		return ResponseEntity.ok(repository.findById(id));
+	@Override
+	@GetMapping("/tweet/{tweetId}")
+	public ResponseEntity<TweetData> getTweetById(@PathVariable("tweetId") long tweetId) {
+		return ResponseEntity.ok(repository.findById(tweetId));
 	}
 	
-	@PatchMapping("/tweet/{id}")
-	public ResponseEntity<TweetData> setValid(@PathVariable long id) {
-		TweetData tweet = repository.findById(id);
+	@Override
+	@PatchMapping("/tweet/{tweetId}")
+	public ResponseEntity<TweetData> setValid(@PathVariable("tweetId") long tweetId) {
+		TweetData tweet = repository.findById(tweetId);
 		tweet.setValid(true);
 		repository.save(tweet);
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(tweet.getId()).toUri();
 		return ResponseEntity.ok().header("Location", location.toString()).build();
 	}
 	
-	@GetMapping("/tweets/user/{id}")
-	public ResponseEntity<Iterable<TweetData>> getValidatedTweetsByUserId(@PathVariable long userId) {
+	@Override
+	@GetMapping("/tweets/{userId}")
+	public ResponseEntity<Iterable<TweetData>> getValidatedTweetsByUserId(@PathVariable("userId") long userId) {
 		return ResponseEntity.ok(repository.findAllValidated(userId));
 	}
 	
+	@Override
 	@GetMapping("/tweet/topmost")
 	public ResponseEntity<Iterable<String>> getTopHashtags() {
 		return ResponseEntity.ok(twitterService.getTopHashRags());
