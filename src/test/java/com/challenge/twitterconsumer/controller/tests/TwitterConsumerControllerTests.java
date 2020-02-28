@@ -32,9 +32,6 @@ class TwitterConsumerControllerTests {
 	@MockBean
 	TwitterConsumerService service;
 	
-	@Autowired
-	private TestRestTemplate restTemplate;
-	
 	@Test
 	void whenPostTweetThenCreateTweet() throws Exception {
 		TweetData tweet = new TweetData(10L, 100L, "prueba", false, "Spain");
