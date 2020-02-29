@@ -1,14 +1,13 @@
 package com.challenge.twitterconsumer.controller.tests;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.challenge.twitterconsumer.domain.TweetData;
 import com.challenge.twitterconsumer.service.TwitterConsumerService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -36,13 +34,11 @@ class TwitterConsumerControllerTests {
 	@Test
 	void whenPostTweetThenCreateTweet() throws Exception {
 		TweetData tweet = new TweetData(10L, 100L, "prueba", false, "Spain");
-		given(service.processTweet(Mockito.any())).willReturn(tweet);
+		given(service.getTweetFromRequest("{}")).willReturn(tweet);
 		
-		ObjectMapper mapper = new ObjectMapper();
-		String jsonStr = mapper.writeValueAsString(tweet);
-		
-		mvc.perform( post(urlPath).contentType(MediaType.APPLICATION_JSON)
-				.content(jsonStr)).andExpect( status().isCreated());
+		mvc.perform( post(urlPath).content("{}")
+		.contentType(MediaType.APPLICATION_JSON))
+		.andExpect( status().isCreated());
 
 	}
 	
@@ -54,23 +50,21 @@ class TwitterConsumerControllerTests {
 	}
 	
 	@Test
-	void itShouldReturnTweetById() {
-		given(this.service.getTweetById(200L))
-		.willReturn(new TweetData(200L, 300L, "Soy feliz", false, "Spain"));
-		assertThat(this.service.getTweetById(200L).getLocation()).isEqualTo("Spain");
+	void itShouldReturnTweetById() throws Exception {
+		given(service.getTweetById(200L))
+				.willReturn(new TweetData(200L, 300L, "Soy feliz", false, "Spain"));
+		
+		mvc.perform( get(urlPath + "/200").contentType(MediaType.APPLICATION_JSON))
+		.andExpect( status().isOk());
 	}
 	
 	@Test
 	void itShouldMarkTweetAsValid() throws Exception{
-		TweetData tweet = new TweetData(123L, 100L, "prueba", false, "Spain");
-		given(service.processTweet(Mockito.any())).willReturn(tweet);
-		
-		ObjectMapper mapper = new ObjectMapper();
-		String jsonStr = mapper.writeValueAsString(tweet);
-		
-		mvc.perform( post(urlPath).pathInfo("/123")
-				.content(jsonStr))
-		.andExpect( status().isCreated());
+		TweetData tweet = new TweetData(123L, 100L, "prueba", true, "Spain");
+		given(service.markTweetAsValid(123L)).willReturn(tweet);
+
+		mvc.perform( patch(urlPath + "/123"))
+		.andExpect( status().isOk());
 		
 	}
 

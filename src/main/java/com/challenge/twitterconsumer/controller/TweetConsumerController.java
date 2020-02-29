@@ -4,6 +4,7 @@
 package com.challenge.twitterconsumer.controller;
 
 import java.net.URI;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import com.challenge.twitterconsumer.domain.TweetData;
-import com.challenge.twitterconsumer.repository.TweetRepository;
 import com.challenge.twitterconsumer.service.TwitterConsumerService;
+
 import twitter4j.TwitterException;
 
 /**
@@ -30,9 +32,6 @@ import twitter4j.TwitterException;
 public class TweetConsumerController implements TweetConsumer {
 
 	private static Logger log = LoggerFactory.getLogger(TweetConsumerController.class);
-	
-	@Autowired
-	private TweetRepository<TweetData> repository;
 	
 	@Autowired
 	private TwitterConsumerService twitterService;
@@ -64,23 +63,21 @@ public class TweetConsumerController implements TweetConsumer {
 	@Override
 	@GetMapping("/tweet")
 	public ResponseEntity<Iterable<TweetData>> getTweets() {
-		return ResponseEntity.ok(repository.findAll());
+		return ResponseEntity.ok(twitterService.getAllTweets());
 	}
 	
 	@Override
 	@GetMapping("/tweet/{tweetId}")
 	public ResponseEntity<TweetData> getTweetById(@PathVariable("tweetId") long tweetId) {
-		return ResponseEntity.ok(repository.findById(tweetId));
+		return ResponseEntity.ok(twitterService.getTweetById(tweetId));
 	}
 	
 	@Override
 	@PatchMapping("/tweet/{tweetId}")
 	public ResponseEntity<TweetData> setValid(@PathVariable("tweetId") long tweetId) {
-		TweetData tweet = repository.findById(tweetId);
+		TweetData tweet = twitterService.markTweetAsValid(tweetId);
 		
 		if (tweet != null) {
-			tweet.setValid(true);
-			repository.save(tweet);
 			URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(tweet.getId()).toUri();
 			return ResponseEntity.ok().header("Location", location.toString()).build();
 		}
@@ -91,7 +88,7 @@ public class TweetConsumerController implements TweetConsumer {
 	@Override
 	@GetMapping("/tweets/{userId}")
 	public ResponseEntity<Iterable<TweetData>> getValidatedTweetsByUserId(@PathVariable("userId") long userId) {
-		return ResponseEntity.ok(repository.findAllValidated(userId));
+		return ResponseEntity.ok(twitterService.getValidatedTweetsByUserId(userId));
 	}
 	
 	@Override
