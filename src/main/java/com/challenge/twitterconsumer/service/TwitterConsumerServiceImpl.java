@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,23 +105,13 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService{
 	}
 
 	@Override
-	public TweetData getTweetFromRequest(String statusRequest) {
-		Status status = this.getStatusFromRequest(statusRequest)
-				.orElseThrow(() -> new IllegalArgumentException("Tweet invalido"));
-		
+	public TweetData getTweetFromRequest(String statusRequest) throws TwitterException {
+		Status status = this.getStatusFromRequest(statusRequest);
 		return this.processTweet(status);
 	}
 	
-	private Optional<Status> getStatusFromRequest(String request) {
-		Status result = null;
-		
-		try {
-			result = TwitterObjectFactory.createStatus(request);
-		} catch (TwitterException e) {
-			e.printStackTrace();
-		}
-		
-		return Optional.ofNullable(result);
+	private Status getStatusFromRequest(String request) throws TwitterException {
+		return TwitterObjectFactory.createStatus(request);
 	}
 
 }

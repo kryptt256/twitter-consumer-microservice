@@ -5,6 +5,7 @@ import java.util.List;
 import com.challenge.twitterconsumer.domain.TweetData;
 
 import twitter4j.Status;
+import twitter4j.TwitterException;
 
 public interface TwitterConsumerService {
 	TweetData processTweet(Status status);
@@ -14,5 +15,5 @@ public interface TwitterConsumerService {
 	TweetData getTweetById(long id);
 	TweetData markTweetAsValid(long id);
 	Iterable<TweetData> getValidatedTweetsByUserId(long userId);
-	TweetData getTweetFromRequest(String statusRequest);
+	TweetData getTweetFromRequest(String statusRequest) throws TwitterException;
 }

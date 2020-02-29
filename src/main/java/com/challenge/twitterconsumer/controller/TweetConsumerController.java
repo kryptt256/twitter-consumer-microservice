@@ -4,7 +4,8 @@
 package com.challenge.twitterconsumer.controller;
 
 import java.net.URI;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import com.challenge.twitterconsumer.domain.TweetData;
 import com.challenge.twitterconsumer.repository.TweetRepository;
 import com.challenge.twitterconsumer.service.TwitterConsumerService;
+import twitter4j.TwitterException;
 
 /**
  * @author vvmaster
@@ -28,6 +29,8 @@ import com.challenge.twitterconsumer.service.TwitterConsumerService;
 @RequestMapping("/twitterconsumer")
 public class TweetConsumerController implements TweetConsumer {
 
+	private static Logger log = LoggerFactory.getLogger(TweetConsumerController.class);
+	
 	@Autowired
 	private TweetRepository<TweetData> repository;
 	
@@ -41,9 +44,16 @@ public class TweetConsumerController implements TweetConsumer {
 	@RequestMapping(value="/tweet", method = {RequestMethod.POST, RequestMethod.PUT})
 	public ResponseEntity<?> consumeTweet(@RequestBody String statusRequest) {
 		
-		TweetData tweet = twitterService.getTweetFromRequest(statusRequest);
-		if (tweet == null) {
-			return ResponseEntity.noContent().build();
+		TweetData tweet;
+		try {
+			tweet = twitterService.getTweetFromRequest(statusRequest);
+		} catch (TwitterException e) {
+			StringBuilder sb = new StringBuilder(150);
+			sb.append("Error: Tweet invalido!")
+			.append("\n").append(e.getMessage());
+			log.error(e.getMessage());
+			
+			throw new IllegalArgumentException(sb.toString());
 		}
 		
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -67,10 +77,15 @@ public class TweetConsumerController implements TweetConsumer {
 	@PatchMapping("/tweet/{tweetId}")
 	public ResponseEntity<TweetData> setValid(@PathVariable("tweetId") long tweetId) {
 		TweetData tweet = repository.findById(tweetId);
-		tweet.setValid(true);
-		repository.save(tweet);
-		URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(tweet.getId()).toUri();
-		return ResponseEntity.ok().header("Location", location.toString()).build();
+		
+		if (tweet != null) {
+			tweet.setValid(true);
+			repository.save(tweet);
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(tweet.getId()).toUri();
+			return ResponseEntity.ok().header("Location", location.toString()).build();
+		}
+		
+		throw new IllegalArgumentException("Error: tweet id no existe -> " + tweetId);
 	}
 	
 	@Override
