@@ -31,11 +31,11 @@ import twitter4j.TwitterException;
 public class TweetConsumerController implements TweetConsumer {
 
 	private static Logger log = LoggerFactory.getLogger(TweetConsumerController.class);
-	
-	@Autowired
 	private TwitterConsumerService twitterService;
 	
-	public TweetConsumerController() {
+	@Autowired
+	public TweetConsumerController(TwitterConsumerService twitterService) {
+		this.twitterService = twitterService;
 	}
 	
 	@Override

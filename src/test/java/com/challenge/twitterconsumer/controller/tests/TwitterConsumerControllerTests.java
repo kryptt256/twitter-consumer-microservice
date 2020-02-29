@@ -23,13 +23,17 @@ import com.challenge.twitterconsumer.service.TwitterConsumerService;
 @AutoConfigureMockMvc
 class TwitterConsumerControllerTests {
 
-	@Autowired
 	MockMvc mvc;
 	
 	@MockBean
-	TwitterConsumerService service;
+	private TwitterConsumerService service;
 	
 	private static final String urlPath = "/twitterconsumer/tweet";
+
+	@Autowired
+	public TwitterConsumerControllerTests(MockMvc mvc) {
+		this.mvc = mvc;
+	}
 	
 	@Test
 	void whenPostTweetThenCreateTweet() throws Exception {

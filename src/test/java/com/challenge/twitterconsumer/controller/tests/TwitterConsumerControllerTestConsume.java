@@ -25,10 +25,13 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 class TwitterConsumerControllerTestConsume {
 
-	@Autowired
 	MockMvc mvc;
-	
 	private static final String urlPath = "/twitterconsumer/tweet";
+	
+	@Autowired
+	public TwitterConsumerControllerTestConsume(MockMvc mvc) {
+		this.mvc = mvc;
+	}
 	
 	@Test
 	void itShouldReturnStatusCreated() throws Exception {

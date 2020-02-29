@@ -33,11 +33,8 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService{
 
 	@Value("${service.hashtag.rank}")
 	private int maxRankToShow;
-	
-	@Autowired
-	private List<PersistenceRule> rules;
 
-	@Autowired
+	private List<PersistenceRule> rules;
 	private TweetRepository<TweetData> repository;
 	
 	private Map<String, Integer> cacheRanking = new HashMap<>();
@@ -46,6 +43,12 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService{
 			(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) -> {
 				return o2.getValue().compareTo(o1.getValue());
 			};
+	
+	@Autowired
+	public TwitterConsumerServiceImpl(List<PersistenceRule> rules, TweetRepository<TweetData> repository) {
+		this.rules = rules;
+		this.repository = repository;
+	}
 			
 	@Override
 	public boolean isPersistTweet(Status status) {

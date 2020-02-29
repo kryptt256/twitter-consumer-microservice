@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.annotation.Order;
 
 import com.challenge.twitterconsumer.domain.TweetData;
 import com.challenge.twitterconsumer.repository.TweetRepository;
@@ -18,13 +17,16 @@ import com.challenge.twitterconsumer.repository.TweetRepository;
 @SpringBootTest
 class TweetRepositoryTests {
 
-	@Autowired
-	TweetRepository<TweetData> repository;
+	private TweetRepository<TweetData> repository;
 	
 	private Stream<TweetData> tweets;
 
+	@Autowired
+	public TweetRepositoryTests(TweetRepository<TweetData> repository) {
+		this.repository = repository;
+	}
+
 	@Test
-	@Order(1)
 	void itShouldSaveTweet() {
 		TweetData tweet = new TweetData();
 		tweet.setId(454599L);
@@ -34,7 +36,6 @@ class TweetRepositoryTests {
 	}
 	
 	@Test
-	@Order(2)
 	void itShouldSaveListOfTweets() {
 		tweets = Stream.of(new TweetData(54547L, 100L, "hola mundo", false, "Spain"));
 		repository.save(tweets.collect(Collectors.toList()));
@@ -42,7 +43,6 @@ class TweetRepositoryTests {
 	}
 	
 	@Test
-	@Order(3)
 	void itShouldRetrieveValidatedTweetsByUserId() {
 		tweets = Stream.of(new TweetData(54547L, 100L, "hola mundo", false, "Spain"),
 				new TweetData(5454733L, 1001L, "Me gusta la pizza", true, "Francia"));
