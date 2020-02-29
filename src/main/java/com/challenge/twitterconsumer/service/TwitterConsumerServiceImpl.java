@@ -9,11 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.challenge.twitterconsumer.controller.TweetDTO;
 import com.challenge.twitterconsumer.domain.TweetData;
 import com.challenge.twitterconsumer.repository.TweetRepository;
 
@@ -72,46 +74,77 @@ public class TwitterConsumerServiceImpl implements TwitterConsumerService{
 	}
 
 	@Override
-	public TweetData processTweet(Status status) {
+	public TweetDTO processTweet(Status status) {
 		if (isPersistTweet(status)) {
-			TweetData tweet = repository.save( TweetData.mapFromStatus(status) );
+			TweetDTO tweetDTO = this.mapDTOFromStatus(status);
+			TweetData tweetData = this.mapDataFromDTO(tweetDTO);
+			repository.save( tweetData );
 			rankHashtag(status.getHashtagEntities());
-			return tweet;
+			return tweetDTO;
 		}
 		return null;
 	}
 
 	@Override
-	public Iterable<TweetData> getAllTweets() {
-		return repository.findAll();
+	public Iterable<TweetDTO> getAllTweets() {
+		return StreamSupport.stream(repository.findAll().spliterator(), false)
+				.map(this::mapTweetDTOFromTweetData)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public TweetData getTweetById(long id) {
-		return repository.findById(id);
+	public TweetDTO getTweetById(long id) {
+		return mapTweetDTOFromTweetData( repository.findById(id) )  ;
 	}
 
 	@Override
-	public TweetData markTweetAsValid(long id) {
+	public TweetDTO markTweetAsValid(long id) {
 		TweetData tweet = repository.findById(id);
 		tweet.setValid(true);
 		repository.save(tweet);
-		return tweet;
+		return mapTweetDTOFromTweetData(tweet);
 	}
 
 	@Override
-	public Iterable<TweetData> getValidatedTweetsByUserId(long userId) {
-		return repository.findAllValidated(userId);
+	public Iterable<TweetDTO> getValidatedTweetsByUserId(long userId) {
+		return StreamSupport.stream(repository.findAllValidated(userId).spliterator(), false)
+				.map(this::mapTweetDTOFromTweetData)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public TweetData getTweetFromRequest(String statusRequest) throws TwitterException {
+	public TweetDTO getTweetFromRequest(String statusRequest) throws TwitterException {
 		Status status = this.getStatusFromRequest(statusRequest);
 		return this.processTweet(status);
 	}
 	
 	private Status getStatusFromRequest(String request) throws TwitterException {
 		return TwitterObjectFactory.createStatus(request);
+	}
+	
+	private TweetData mapDataFromDTO(TweetDTO tweetDTO) {
+		TweetData tweetData = new TweetData();
+		tweetData.setId(tweetDTO.getId());
+		tweetData.setText(tweetDTO.getText());
+		tweetData.setValid(false);
+		tweetData.setUserId(tweetDTO.getUserId());
+		tweetData.setLocation(tweetDTO.getLocation());
+		return tweetData;
+	}
+	
+	private TweetDTO mapDTOFromStatus(Status status) {
+		TweetDTO tweetDTO = new TweetDTO();
+		tweetDTO.setId(status.getId());
+		tweetDTO.setText(status.getText());
+		tweetDTO.setValid(false);
+		tweetDTO.setUserId(status.getUser().getId());
+		tweetDTO.setLocation(status.getUser().getLocation());
+		return tweetDTO;
+	}
+	
+	private TweetDTO mapTweetDTOFromTweetData(TweetData data) {
+		return new TweetDTO(data.getId(), data.getUserId(), data.getText(), 
+				data.isValid(), data.getLocation());
 	}
 
 }

@@ -15,7 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.challenge.twitterconsumer.domain.TweetData;
+import com.challenge.twitterconsumer.controller.TweetDTO;
 import com.challenge.twitterconsumer.service.TwitterConsumerService;
 
 
@@ -33,7 +33,7 @@ class TwitterConsumerControllerTests {
 	
 	@Test
 	void whenPostTweetThenCreateTweet() throws Exception {
-		TweetData tweet = new TweetData(10L, 100L, "prueba", false, "Spain");
+		TweetDTO tweet = new TweetDTO(10L, 100L, "prueba", false, "Spain");
 		given(service.getTweetFromRequest("{}")).willReturn(tweet);
 		
 		mvc.perform( post(urlPath).content("{}")
@@ -52,7 +52,7 @@ class TwitterConsumerControllerTests {
 	@Test
 	void itShouldReturnTweetById() throws Exception {
 		given(service.getTweetById(200L))
-				.willReturn(new TweetData(200L, 300L, "Soy feliz", false, "Spain"));
+				.willReturn(new TweetDTO(200L, 300L, "Soy feliz", false, "Spain"));
 		
 		mvc.perform( get(urlPath + "/200").contentType(MediaType.APPLICATION_JSON))
 		.andExpect( status().isOk());
@@ -60,7 +60,7 @@ class TwitterConsumerControllerTests {
 	
 	@Test
 	void itShouldMarkTweetAsValid() throws Exception{
-		TweetData tweet = new TweetData(123L, 100L, "prueba", true, "Spain");
+		TweetDTO tweet = new TweetDTO(123L, 100L, "prueba", true, "Spain");
 		given(service.markTweetAsValid(123L)).willReturn(tweet);
 
 		mvc.perform( patch(urlPath + "/123"))

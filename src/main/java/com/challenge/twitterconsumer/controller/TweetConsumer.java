@@ -2,19 +2,17 @@ package com.challenge.twitterconsumer.controller;
 
 import org.springframework.http.ResponseEntity;
 
-import com.challenge.twitterconsumer.domain.TweetData;
-
 public interface TweetConsumer {
 
 	ResponseEntity<?> consumeTweet(String statusRequest);
 
-	ResponseEntity<Iterable<TweetData>> getTweets();
+	ResponseEntity<Iterable<TweetDTO>> getTweets();
 
-	ResponseEntity<TweetData> getTweetById(long tweetId);
+	ResponseEntity<TweetDTO> getTweetById(long tweetId);
 
-	ResponseEntity<TweetData> setValid(long tweetId);
+	ResponseEntity<TweetDTO> setValid(long tweetId);
 
-	ResponseEntity<Iterable<TweetData>> getValidatedTweetsByUserId(long userId);
+	ResponseEntity<Iterable<TweetDTO>> getValidatedTweetsByUserId(long userId);
 
 	ResponseEntity<Iterable<String>> getTopHashtags();
 

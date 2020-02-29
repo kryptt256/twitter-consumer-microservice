@@ -7,8 +7,6 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import twitter4j.Status;
-
 /**
  * @author vvmaster
  *
@@ -36,16 +34,6 @@ public class TweetData implements Serializable {
 		this.text = text;
 		this.valid = valid;
 		this.location = location;
-	}
-
-	public static TweetData mapFromStatus(Status status) {
-		TweetData tweet = new TweetData();
-		tweet.setId(status.getId());
-		tweet.setText(status.getText());
-		tweet.setValid(false);
-		tweet.setUserId(status.getUser().getId());
-		tweet.setLocation(status.getUser().getLocation());
-		return tweet;
 	}
 
 	public long getId() {

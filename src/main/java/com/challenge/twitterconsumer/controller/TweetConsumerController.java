@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.challenge.twitterconsumer.domain.TweetData;
 import com.challenge.twitterconsumer.service.TwitterConsumerService;
 
 import twitter4j.TwitterException;
@@ -43,7 +42,7 @@ public class TweetConsumerController implements TweetConsumer {
 	@RequestMapping(value="/tweet", method = {RequestMethod.POST, RequestMethod.PUT})
 	public ResponseEntity<?> consumeTweet(@RequestBody String statusRequest) {
 		
-		TweetData tweet;
+		TweetDTO tweet;
 		try {
 			tweet = twitterService.getTweetFromRequest(statusRequest);
 		} catch (TwitterException e) {
@@ -62,20 +61,20 @@ public class TweetConsumerController implements TweetConsumer {
 	
 	@Override
 	@GetMapping("/tweet")
-	public ResponseEntity<Iterable<TweetData>> getTweets() {
+	public ResponseEntity<Iterable<TweetDTO>> getTweets() {
 		return ResponseEntity.ok(twitterService.getAllTweets());
 	}
 	
 	@Override
 	@GetMapping("/tweet/{tweetId}")
-	public ResponseEntity<TweetData> getTweetById(@PathVariable("tweetId") long tweetId) {
+	public ResponseEntity<TweetDTO> getTweetById(@PathVariable("tweetId") long tweetId) {
 		return ResponseEntity.ok(twitterService.getTweetById(tweetId));
 	}
 	
 	@Override
 	@PatchMapping("/tweet/{tweetId}")
-	public ResponseEntity<TweetData> setValid(@PathVariable("tweetId") long tweetId) {
-		TweetData tweet = twitterService.markTweetAsValid(tweetId);
+	public ResponseEntity<TweetDTO> setValid(@PathVariable("tweetId") long tweetId) {
+		TweetDTO tweet = twitterService.markTweetAsValid(tweetId);
 		
 		if (tweet != null) {
 			URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(tweet.getId()).toUri();
@@ -87,7 +86,7 @@ public class TweetConsumerController implements TweetConsumer {
 	
 	@Override
 	@GetMapping("/tweets/{userId}")
-	public ResponseEntity<Iterable<TweetData>> getValidatedTweetsByUserId(@PathVariable("userId") long userId) {
+	public ResponseEntity<Iterable<TweetDTO>> getValidatedTweetsByUserId(@PathVariable("userId") long userId) {
 		return ResponseEntity.ok(twitterService.getValidatedTweetsByUserId(userId));
 	}
 	
@@ -96,4 +95,5 @@ public class TweetConsumerController implements TweetConsumer {
 	public ResponseEntity<Iterable<String>> getTopHashtags() {
 		return ResponseEntity.ok(twitterService.getTopHashRags());
 	}
+	
 }
